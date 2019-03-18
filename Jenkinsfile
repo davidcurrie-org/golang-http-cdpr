@@ -64,10 +64,12 @@ pipeline {
   }
   post {
     always {
-      sh """
-        jx step stash --pattern="coverage.txt" --pattern="coverage.html" --classifier="go-coverage"
-        jx step stash --pattern="go-static.xml" --classifier="go-static"
-      """
+      dir('/home/jenkins/go/src/github.com/davidcurrie-org/golang-http-cdpr') {
+        sh """
+          jx step stash --pattern="coverage.txt" --pattern="coverage.html" --classifier="go-coverage"
+          jx step stash --pattern="go-static.xml" --classifier="go-static"
+        """
+      }
     }
   }
 }
