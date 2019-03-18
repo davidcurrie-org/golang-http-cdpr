@@ -37,6 +37,14 @@ clean:
 linux:
 	CGO_ENABLED=$(CGO_ENABLED) GOOS=linux GOARCH=amd64 $(GO) build -ldflags $(BUILDFLAGS) -o bin/$(NAME) $(MAIN_GO)
 
+ACC := $(GOPATH)/bin/go-acc
+$(ACC):
+	$(GO) get github.com/ory/go-acc
+
+coverage: $(ACC)
+	$(ACC) -o coverage.txt $(PKGS)
+	$(GO) tool cover -html=coverage.txt -o coverage.html
+
 .PHONY: release clean
 
 FGT := $(GOPATH)/bin/fgt
