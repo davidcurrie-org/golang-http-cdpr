@@ -16,9 +16,9 @@ pipeline {
         HELM_RELEASE = "$PREVIEW_NAMESPACE".toLowerCase()
       }
       steps {
+        sh 'jx step pre extend'
         dir('/home/jenkins/go/src/github.com/davidcurrie-org/golang-http-cdpr') {
           checkout scm
-          sh 'jx step pre extend'
           sh "make linux"
           sh "export VERSION=$PREVIEW_VERSION && skaffold build -f skaffold.yaml"
           sh "jx step post build --image $DOCKER_REGISTRY/$ORG/$APP_NAME:$PREVIEW_VERSION"
@@ -34,11 +34,11 @@ pipeline {
         branch 'master'
       }
       steps {
+        sh 'jx step pre extend'
         dir('/home/jenkins/go/src/github.com/davidcurrie-org/golang-http-cdpr') {
           git 'https://github.com/davidcurrie-org/golang-http-cdpr.git'
 
           // so we can retrieve the version in later steps
-          sh 'jx step pre extend'
           sh "echo \$(jx-release-version) > VERSION"
           sh "jx step tag --version \$(cat VERSION)"
           sh "make build"
