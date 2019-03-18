@@ -18,8 +18,7 @@ pipeline {
       steps {
         dir('/home/jenkins/go/src/github.com/davidcurrie-org/golang-http-cdpr') {
           checkout scm
-          sh 'jx step pre extend'
-          sh "make linux"
+          sh "make linux coverage"
           sh "export VERSION=$PREVIEW_VERSION && skaffold build -f skaffold.yaml"
           sh "jx step post build --image $DOCKER_REGISTRY/$ORG/$APP_NAME:$PREVIEW_VERSION"
         }
@@ -38,10 +37,9 @@ pipeline {
           git 'https://github.com/davidcurrie-org/golang-http-cdpr.git'
 
           // so we can retrieve the version in later steps
-          sh 'jx step pre extend'
           sh "echo \$(jx-release-version) > VERSION"
           sh "jx step tag --version \$(cat VERSION)"
-          sh "make build"
+          sh "make build coverage"
           sh "export VERSION=`cat VERSION` && skaffold build -f skaffold.yaml"
           sh "jx step post build --image $DOCKER_REGISTRY/$ORG/$APP_NAME:\$(cat VERSION)"
         }
@@ -66,7 +64,10 @@ pipeline {
   }
   post {
     always {
-      sh 'jx step post run'
+      sh """
+        jx step stash --pattern="coverage.txt" --pattern="coverage.html" --classifier="go-coverage"
+        jx step stash --pattern="go-static.xml" --classifier="go-static"
+      """
     }
   }
 }
